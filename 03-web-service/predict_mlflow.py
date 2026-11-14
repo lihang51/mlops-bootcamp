@@ -1,20 +1,9 @@
 import pickle
 
-import mlflow
 from flask import Flask, request, jsonify
 
-RUN_ID = "2a793dc693044d40806f3f946470f960"
-mlflow.set_tracking_uri(
-    "sqlite:////workspaces/mlops-bootcamp/02-experiment-tracking/mlflow.db"
-)
-
-model = mlflow.pyfunc.load_model(f"runs:/{RUN_ID}/models_mlflow")
-
-dv_path = mlflow.artifacts.download_artifacts(
-    run_id=RUN_ID, artifact_path="preprocessor/preprocessor.b"
-)
-with open(dv_path, "rb") as f_in:
-    dv = pickle.load(f_in)
+with open("lin_reg.bin", "rb") as f_in:
+    dv, model = pickle.load(f_in)
 
 
 def prepare_features(ride):
@@ -40,7 +29,7 @@ def predict_endpoint():
     features = prepare_features(ride)
     pred = predict(features)
 
-    result = {"duration": pred, "model_version": RUN_ID}
+    result = {"duration": pred}
     return jsonify(result)
 
 
